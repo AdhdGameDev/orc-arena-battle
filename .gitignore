@@ -1,0 +1,7 @@
+.import/
+.godot/
+.mono/
+.idea/
+.vs/
+export_presets.cfg
+.cache/
