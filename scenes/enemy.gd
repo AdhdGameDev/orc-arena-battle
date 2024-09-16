@@ -1,43 +1,28 @@
-extends CharacterBody2D
+extends BaseCharacter
 
-const SPEED = 100.0
 const ATTACK_RANGE = 300.0
-var is_dead: bool = false
-var max_health: int = 30
-var current_health: int = max_health
-var is_attacked: bool = false
 @onready var healthbar: TextureProgressBar = $Healthbar
 @onready var attack_range: Area2D = $AttackRange
 @onready var pulsate_timer: Timer = $PulsateTimer
 
-var can_move: bool = true
-var is_attacking: bool = false
-var can_attack: bool = true
 var player_in_range: Node2D = null
+var bodies_nearby: Array[Node2D]
 
 var player: Node2D = null
 
-signal health_changed  # Signal to notify health changes
-
 func _ready() -> void:
-	SignalManager.enemy_damaged.connect(_on_enemy_damaged)
-	player = get_node("../Player")  # Adjust the path based on where your Player node is located in the scene
+	SignalManager.character_damaged.connect(_on_character_damaged)
 	health_changed.connect(on_health_changed)
+	$Healthbar.set_health(100)
+	current_health = max_health
+	player = get_node("../Player")  # Adjust the path based on where your Player node is located in the scene
 
 func _process(delta: float) -> void:
 	if is_dead or is_attacked or is_attacking:
 		return  # Skip movement if the enemy is dead, being attacked, or attacking
-
-	# Check for the player within the attack range
-	var bodies_nearby: Array[Node2D] = attack_range.get_overlapping_bodies()
-	player_in_range = null
-	
-	for body in bodies_nearby:
-		if body.is_in_group("player"):
-			player_in_range = body
-
+		
 	# If the player is in range and can attack, start the attack
-	if player_in_range != null and can_attack:
+	if is_player_in_attack_area() and can_attack:
 		start_attack_player(player_in_range)
 	else:
 		# If no player is in range, check if the player is still close enough to move toward
@@ -56,7 +41,18 @@ func start_attack_player(player: Node2D) -> void:
 	# Use a timer or wait for animation finished signal
 	$AttackTimer.start()  # Set a timer for attack cooldown/reset
 	
-
+func is_player_in_attack_area() -> bool:
+	bodies_nearby = attack_range.get_overlapping_bodies()
+	player_in_range = null
+	
+	var player_found: bool = false
+	
+	for body in bodies_nearby:
+		if body.is_in_group("player"):
+			return true
+			break
+			
+	return player_found
 
 # Function to check if the player is within a specific range for chasing
 func is_player_in_range() -> bool:
@@ -72,24 +68,6 @@ func move_toward_player(delta: float) -> void:
 	# Play movement animation (for example, "walk" animation)
 	$AnimatedSprite2D.play("walk")
 
-# Function to handle damage
-func _on_enemy_damaged(enemy: Node2D, damage: int):
-	print("enemy damaged signal received:", enemy, "self:", self)
-	if enemy == self and current_health > 0:
-		is_attacked = true
-		apply_damage(damage)
-	print("----------------------------------------------------")
-
-func apply_damage(damage: int):
-	current_health -= damage
-	health_changed.emit(current_health, max_health)
-	if current_health <= 0:
-		is_dead = true
-		$AnimatedSprite2D.play("death")
-		$CorpseTimer.start()  # Start the timer to remove the enemy after death
-	else:
-		if !is_attacking:
-			$AnimatedSprite2D.play("hurt")
 
 # Handle attack animation finished event
 func _on_animated_sprite_2d_animation_finished() -> void:
@@ -101,15 +79,10 @@ func _on_animated_sprite_2d_animation_finished() -> void:
 		can_move = true
 		can_attack = true
 
-func on_health_changed(current_health: int, max_health: int):
-	healthbar.set_health(current_health)
-
-
 func _on_attack_timer_timeout() -> void:
 	is_attacking = false
 	can_move = true
 	can_attack = true
-
 
 func _on_animated_sprite_2d_frame_changed() -> void:
 	# Check if the current animation is "attack"
@@ -132,6 +105,9 @@ func _on_pulsate_timer_timeout() -> void:
 	var current_progress = $AnimatedSprite2D.get_frame_progress()
 	$AnimatedSprite2D.set_frame_and_progress(3, current_progress)
 	$AnimatedSprite2D.play()
+	if is_player_in_attack_area():
+		print("wtf")
+		SignalManager.character_damaged.emit(player, 10)
 
 
 func _on_corpse_timer_timeout() -> void:
