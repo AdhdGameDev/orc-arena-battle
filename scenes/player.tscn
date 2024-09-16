@@ -643,7 +643,7 @@ animations = [{
 }]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wpdqv"]
-size = Vector2(78, 32)
+size = Vector2(124, 78)
 
 [node name="Player" type="CharacterBody2D"]
 position = Vector2(633, 308)
@@ -660,8 +660,8 @@ animation = &"run_up"
 
 [node name="AttackArea" type="Area2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea"]
-position = Vector2(-1, -52)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea" groups=["player"]]
+position = Vector2(0, -43)
 shape = SubResource("RectangleShape2D_wpdqv")
 
 [node name="AttackCooldown" type="Timer" parent="."]

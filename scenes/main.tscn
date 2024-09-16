@@ -5,28 +5,29 @@
 
 [node name="Main" type="Node2D"]
 
-[node name="Player" parent="." instance=ExtResource("1_8autc")]
+[node name="Player" parent="." groups=["player"] instance=ExtResource("1_8autc")]
+position = Vector2(390, 479)
 
 [node name="Enemy" parent="." instance=ExtResource("2_b4w4s")]
-position = Vector2(513, 221)
+position = Vector2(300, 140)
 scale = Vector2(2, 2)
 
 [node name="Enemy2" parent="." instance=ExtResource("2_b4w4s")]
-position = Vector2(895, 148)
+position = Vector2(1045, 64)
 scale = Vector2(2, 2)
 
 [node name="Enemy3" parent="." instance=ExtResource("2_b4w4s")]
-position = Vector2(1082, 443)
+position = Vector2(1133, 308)
 scale = Vector2(2, 2)
 
 [node name="Enemy4" parent="." instance=ExtResource("2_b4w4s")]
-position = Vector2(692, 72)
+position = Vector2(917, 63)
 scale = Vector2(2, 2)
 
 [node name="Enemy5" parent="." instance=ExtResource("2_b4w4s")]
-position = Vector2(1041, 161)
+position = Vector2(1095, 152)
 scale = Vector2(2, 2)
 
 [node name="Enemy6" parent="." instance=ExtResource("2_b4w4s")]
-position = Vector2(841, 519)
+position = Vector2(1078, 525)
 scale = Vector2(2, 2)

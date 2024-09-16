@@ -1,14 +1,22 @@
 extends CharacterBody2D
 
 const SPEED = 100.0
-const JUMP_VELOCITY = -400.0
-const ATTACK_RANGE = 300.0  # The distance within which the enemy will start moving toward the player
+const ATTACK_RANGE = 300.0
 var is_dead: bool = false
 var max_health: int = 30
 var current_health: int = max_health
 var is_attacked: bool = false
-var player: Node2D  # Reference to the player
 @onready var healthbar: TextureProgressBar = $Healthbar
+@onready var attack_range: Area2D = $AttackRange
+@onready var pulsate_timer: Timer = $PulsateTimer
+
+var can_move: bool = true
+var is_attacking: bool = false
+var can_attack: bool = true
+var player_in_range: Node2D = null
+
+var player: Node2D = null
+
 signal health_changed  # Signal to notify health changes
 
 func _ready() -> void:
@@ -17,16 +25,40 @@ func _ready() -> void:
 	health_changed.connect(on_health_changed)
 
 func _process(delta: float) -> void:
-	if is_dead or is_attacked:
-		return  # Skip movement if the enemy is dead or being attacked
+	if is_dead or is_attacked or is_attacking:
+		return  # Skip movement if the enemy is dead, being attacked, or attacking
 
-	# Check if the player is within the attack range
-	if is_player_in_range():
-		move_toward_player(delta)
+	# Check for the player within the attack range
+	var bodies_nearby: Array[Node2D] = attack_range.get_overlapping_bodies()
+	player_in_range = null
+	
+	for body in bodies_nearby:
+		if body.is_in_group("player"):
+			player_in_range = body
+
+	# If the player is in range and can attack, start the attack
+	if player_in_range != null and can_attack:
+		start_attack_player(player_in_range)
 	else:
-		$AnimatedSprite2D.play("idle")
+		# If no player is in range, check if the player is still close enough to move toward
+		if is_player_in_range():
+			move_toward_player(delta)
+		else:
+			$AnimatedSprite2D.play("idle")
 
-# Function to check if the player is within range
+# Start the attack, but don't interrupt it once started
+func start_attack_player(player: Node2D) -> void:
+	can_attack = false
+	can_move = false
+	is_attacking = true
+	$AnimatedSprite2D.play("attack")
+
+	# Use a timer or wait for animation finished signal
+	$AttackTimer.start()  # Set a timer for attack cooldown/reset
+	
+
+
+# Function to check if the player is within a specific range for chasing
 func is_player_in_range() -> bool:
 	var distance_to_player = position.distance_to(player.position)
 	return distance_to_player <= ATTACK_RANGE
@@ -37,14 +69,16 @@ func move_toward_player(delta: float) -> void:
 	velocity = direction_to_player * SPEED
 	move_and_slide()
 
-	# Play movement animation (for example, "run" animation)
+	# Play movement animation (for example, "walk" animation)
 	$AnimatedSprite2D.play("walk")
 
 # Function to handle damage
 func _on_enemy_damaged(enemy: Node2D, damage: int):
-	if enemy == self:
+	print("enemy damaged signal received:", enemy, "self:", self)
+	if enemy == self and current_health > 0:
 		is_attacked = true
 		apply_damage(damage)
+	print("----------------------------------------------------")
 
 func apply_damage(damage: int):
 	current_health -= damage
@@ -54,15 +88,51 @@ func apply_damage(damage: int):
 		$AnimatedSprite2D.play("death")
 		$CorpseTimer.start()  # Start the timer to remove the enemy after death
 	else:
-		$AnimatedSprite2D.play("hurt")
+		if !is_attacking:
+			$AnimatedSprite2D.play("hurt")
 
-func _on_corpse_timer_timeout() -> void:
-	queue_free()  # Remove the enemy from the game
-
+# Handle attack animation finished event
 func _on_animated_sprite_2d_animation_finished() -> void:
 	if is_attacked:
 		is_attacked = false
+	if is_attacking:
+		# When the attack animation finishes, reset the attack state
+		is_attacking = false
+		can_move = true
+		can_attack = true
 
 func on_health_changed(current_health: int, max_health: int):
 	healthbar.set_health(current_health)
-	
+
+
+func _on_attack_timer_timeout() -> void:
+	is_attacking = false
+	can_move = true
+	can_attack = true
+
+
+func _on_animated_sprite_2d_frame_changed() -> void:
+	# Check if the current animation is "attack"
+	if $AnimatedSprite2D.animation == "attack":
+		# Freeze on the second frame (index 1, since it starts from 0)
+		if $AnimatedSprite2D.frame == 1:  
+			$AnimatedSprite2D.stop()  # Freeze the animation
+			start_pulsating_effect()
+			
+# Start the pulsating effect (pulsating red color for 1 second)
+func start_pulsating_effect():
+	pulsate_timer.start(1.0)  # Pulsate for 1 second
+	modulate = Color(1, 0, 0)  # Set initial red color
+
+
+
+func _on_pulsate_timer_timeout() -> void:
+	modulate = Color(1, 1, 1)  # Reset color back to normal
+	pulsate_timer.stop()  # Stop the pulsating timer
+	var current_progress = $AnimatedSprite2D.get_frame_progress()
+	$AnimatedSprite2D.set_frame_and_progress(3, current_progress)
+	$AnimatedSprite2D.play()
+
+
+func _on_corpse_timer_timeout() -> void:
+	queue_free()
