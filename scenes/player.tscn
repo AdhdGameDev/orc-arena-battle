@@ -138,7 +138,6 @@ atlas = ExtResource("2_dkuvv")
 region = Rect2(448, 64, 64, 64)
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_w32hu"]
-load_path = "res://.godot/imported/orc1_attack_full.png-f121e212db3f2c2dcecfaba8a436a037.ctex"
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_036eq"]
 atlas = ExtResource("3_gxf15")
