@@ -23,6 +23,7 @@ func _process(delta: float) -> void:
 		
 	# If the player is in range and can attack, start the attack
 	if is_player_in_attack_area() and can_attack:
+		print("in the area")
 		start_attack_player(player_in_range)
 	else:
 		# If no player is in range, check if the player is still close enough to move toward
@@ -49,6 +50,7 @@ func is_player_in_attack_area() -> bool:
 	
 	for body in bodies_nearby:
 		if body.is_in_group("player"):
+			print("hurray")
 			return true
 			break
 			

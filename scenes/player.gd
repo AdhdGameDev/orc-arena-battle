@@ -8,9 +8,7 @@ func _physics_process(delta: float) -> void:
 		facing_direction = get_direction_from_input(input_direction)
 
 	if Input.is_action_just_pressed("attack") and not is_attacking and can_attack:
-		print("player aattacked")
 		handle_attack()
-
 	if not is_attacking:
 		if input_direction == Vector2.ZERO:
 			play_animation(idle_animations)

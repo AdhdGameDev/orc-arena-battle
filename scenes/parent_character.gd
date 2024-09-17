@@ -1,7 +1,7 @@
 class_name BaseCharacter extends CharacterBody2D
 
 
-const SPEED = 300.0
+const SPEED = 66.0
 var can_move: bool = true
 var is_attacking: bool = false
 var can_attack: bool = true
@@ -58,6 +58,7 @@ func apply_damage(damage: int):
 	health_changed.emit(current_health, max_health)
 	if current_health <= 0:
 		is_dead = true
+		SignalManager.enemy_defeated.emit(10)
 		$AnimatedSprite2D.play("death")
 		$CorpseTimer.start()  # Start the timer to remove the enemy after death
 	else:

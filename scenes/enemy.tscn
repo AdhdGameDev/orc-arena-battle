@@ -257,7 +257,7 @@ animations = [{
 size = Vector2(28, 29)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_m1vc4"]
-radius = 25.0
+radius = 20.025
 
 [node name="Enemy" type="CharacterBody2D" groups=["enemy"]]
 position = Vector2(185, 100)
@@ -267,9 +267,7 @@ script = ExtResource("1_obtgq")
 position = Vector2(-2.5, -3.5)
 scale = Vector2(0.921875, 0.859375)
 sprite_frames = SubResource("SpriteFrames_jy5mp")
-animation = &"attack"
-frame = 4
-frame_progress = 0.544792
+animation = &"idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." groups=["enemy"]]
 position = Vector2(-3, -7.5)
@@ -289,9 +287,9 @@ value = 100.0
 max_health = 30
 
 [node name="AttackRange" type="Area2D" parent="."]
+position = Vector2(-3, -7)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange"]
-position = Vector2(-1, -8)
 shape = SubResource("CircleShape2D_m1vc4")
 
 [node name="AttackTimer" type="Timer" parent="."]

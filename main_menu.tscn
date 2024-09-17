@@ -1,0 +1,64 @@
+[gd_scene load_steps=3 format=3 uid="uid://bd5sqs0xlhkcw"]
+
+[ext_resource type="Script" path="res://main_menu.gd" id="1_dyfc2"]
+[ext_resource type="Texture2D" uid="uid://khubkqf65bly" path="res://globals/medieval-castle-dungeon-with-treasure_107791-29252.jpg" id="1_k35xy"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+size_flags_horizontal = 4
+script = ExtResource("1_dyfc2")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 1110.0
+offset_bottom = 617.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+
+[node name="Sprite2D" type="Sprite2D" parent="MarginContainer"]
+position = Vector2(579, 325)
+scale = Vector2(0.58175, 0.722222)
+texture = ExtResource("1_k35xy")
+
+[node name="Label" type="Label" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0, 0.8, 0, 1)
+theme_override_constants/shadow_offset_x = 11
+theme_override_constants/shadow_offset_y = 5
+theme_override_constants/outline_size = 10
+theme_override_constants/shadow_outline_size = 10
+theme_override_font_sizes/font_size = 40
+text = "Orc Arena Battle
+"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 800
+
+[node name="StartButton" type="Button" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Play game"
+
+[node name="ExitButton" type="Button" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 10
+text = "Exit game
+"
+
+[connection signal="pressed" from="MarginContainer/HBoxContainer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/ExitButton" to="." method="_on_exit_button_pressed"]
